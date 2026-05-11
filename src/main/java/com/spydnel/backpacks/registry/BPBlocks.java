@@ -10,8 +10,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import static net.minecraft.world.level.block.state.BlockBehaviour.Properties.ofFullCopy;
 
+@SuppressWarnings("deprecation")
 public class BPBlocks {
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Backpacks.MODID);
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Backpacks.MOD_ID);
 
     public static final DeferredBlock<BackpackBlock> BACKPACK = BLOCKS.register(
             "backpack", () -> new BackpackBlock(ofFullCopy(Blocks.BROWN_WOOL)

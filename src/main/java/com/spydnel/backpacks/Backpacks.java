@@ -3,13 +3,8 @@ package com.spydnel.backpacks;
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
 import com.spydnel.backpacks.networking.BackpackPayloadHandler;
 import com.spydnel.backpacks.registry.*;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -23,18 +18,13 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
-@Mod(Backpacks.MODID)
+@Mod(Backpacks.MOD_ID)
 public class Backpacks
 {
-    public static final String MODID = "backpacks";
-
+    public static final String MOD_ID = "backpacks";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-
-    public Backpacks(IEventBus modEventBus, ModContainer modContainer)
-    {
-        modEventBus.register(Backpacks.class);
-
+    public Backpacks(IEventBus modEventBus, ModContainer modContainer) {
         BPDataAttatchments.ATTACHMENT_TYPES.register(modEventBus);
         BPBlocks.BLOCKS.register(modEventBus);
         BPItems.ITEMS.register(modEventBus);
@@ -49,7 +39,7 @@ public class Backpacks
         registrar.playToClient(
                 BackpackOpenPayload.TYPE,
                 BackpackOpenPayload.STREAM_CODEC,
-                BackpackPayloadHandler::HandleClientData
+                BackpackPayloadHandler::handleClientData
         );
     }
 
@@ -62,9 +52,9 @@ public class Backpacks
     }
 
     @SubscribeEvent
-    public static void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
-        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES)
+    public static void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(BPItems.BACKPACK);
+        }
     }
 }

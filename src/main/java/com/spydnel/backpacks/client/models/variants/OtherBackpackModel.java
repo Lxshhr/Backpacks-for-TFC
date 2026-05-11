@@ -5,7 +5,7 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class OtherBackpackModel {
 
-    //BLOCK MODEL
+    // Block Model
     public static LayerDefinition createBlockLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
@@ -18,7 +18,7 @@ public class OtherBackpackModel {
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
-    //PLAYER MODEL
+    // Player Model
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();

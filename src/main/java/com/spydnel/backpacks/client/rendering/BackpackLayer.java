@@ -35,15 +35,15 @@ import static com.spydnel.backpacks.registry.BPDataAttatchments.OPEN_TICKS;
 
 @OnlyIn(Dist.CLIENT)
 public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M>{
+    private static ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/model/backpack.png");
+    private static ResourceLocation OVERLAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/model/backpack_overlay.png");
+
     private final ModelPart backpackModel;
     private final ModelPart otherBackpackModel;
 
     private ModelPart model;
 
     private final ModelPart parentBody;
-
-    private static ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MODID, "textures/model/backpack.png");
-    private static ResourceLocation OVERLAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MODID, "textures/model/backpack_overlay.png");
 
     public BackpackLayer(RenderLayerParent renderer, EntityModelSet entityModelSet) {
         super(renderer);
@@ -55,29 +55,22 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float headYaw, float headPitch) {
         ItemStack itemStack = livingEntity.getItemBySlot(EquipmentSlot.CHEST);
 
-
-
-
-
-        if (shouldRender(itemStack, livingEntity)) {
-            //VANITY STUFF
+        if (shouldRender(itemStack)) {
             if (ModList.get().isLoaded("vanity")) {
                 ResourceLocation design = DesignHelper.getStyle(itemStack) != null ? DesignHelper.getStyle(itemStack).getFirst() : null;
-                //Backpacks.LOGGER.debug(String.valueOf(design));
                 if (design == null) {
                     this.model = backpackModel;
                 } else {
                     String path = design.toString();
-                    Backpacks.LOGGER.debug(path);
-                    switch (path) {
-                        case "backpacks:test" -> this.model = otherBackpackModel;
-                        default -> this.model = backpackModel;
+                    if (path.equals("backpacks:test")) {
+                        this.model = otherBackpackModel;
+                    } else {
+                        this.model = backpackModel;
                     }
                 }
             } else {
                 this.model = backpackModel;
             }
-
 
             if (ModList.get().isLoaded("figura")) {
                 figuraCompatStuff(poseStack, buffer, packedLight, livingEntity, partialTicks, itemStack, this);
@@ -98,12 +91,13 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
                 stack.mulPose(Axis.YP.rotationDegrees(180.0F));
                 renderBaseLayer(stack, buffer, packedLight, livingEntity, partialTicks, itemStack, false);
             });
-            if (!render && shouldRender) { renderBaseLayer(poseStack, buffer, packedLight, livingEntity, partialTicks, itemStack, true); }
+            if (!render && shouldRender) {
+                renderBaseLayer(poseStack, buffer, packedLight, livingEntity, partialTicks, itemStack, true);
+            }
         } else {
             renderBaseLayer(poseStack, buffer, packedLight, livingEntity, partialTicks, itemStack, true);
         }
     }
-
 
     private void renderBaseLayer(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float partialTicks, ItemStack itemStack, boolean copyPose) {
         poseStack.pushPose();
@@ -122,7 +116,11 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
         }
 
         this.model.getChild("base").getChild("lid").xRot = lidRot;
-        if (copyPose) { this.backpackModel.copyFrom(parentBody); }
+
+        if (copyPose) {
+            this.backpackModel.copyFrom(parentBody);
+        }
+
         VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(TEXTURE), itemStack.hasFoil());
         this.model.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
         renderColoredLayer(poseStack, buffer, packedLight, itemStack);
@@ -136,16 +134,12 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
         }
 
         VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(OVERLAY_TEXTURE), itemStack.hasFoil());
-
         this.model.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.opaque(i));
     }
 
-    public boolean shouldRender(ItemStack stack, T entity) {
+    public boolean shouldRender(ItemStack stack) {
         return stack.getItem() == BPItems.BACKPACK.asItem();
-
-        //return true;
     }
-
 
     protected ModelPart getParentBody(RenderLayerParent<T, HumanoidModel<T>> renderer) {
         return this.getParentModel().body;

@@ -28,6 +28,7 @@ public class BackpackItem extends BlockItem implements Equipable {
         return EquipmentSlot.CHEST;
     }
 
+    @Override
     public Holder<SoundEvent> getEquipSound() {
         return BPSounds.BACKPACK_EQUIP;
     }

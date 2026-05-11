@@ -7,7 +7,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class BPItems {
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Backpacks.MODID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Backpacks.MOD_ID);
 
     public static final DeferredItem<BackpackItem> BACKPACK = ITEMS.register("backpack",
             () -> new BackpackItem(BPBlocks.BACKPACK.get(), new Item.Properties()

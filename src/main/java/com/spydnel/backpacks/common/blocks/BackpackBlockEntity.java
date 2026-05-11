@@ -26,6 +26,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 
 public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
     private NonNullList<ItemStack> itemStacks;
+
     public int openTicks;
     public boolean newlyPlaced;
     public int placeTicks;
@@ -40,7 +41,6 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
         this.newlyPlaced = true;
     }
 
-
     public int getColor() {
         return color;
     }
@@ -48,8 +48,12 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
     public boolean triggerEvent(int id, int type) {
         if (id == 1) {
             openCount = type;
-            if (openCount == 0) { openTicks = 10; }
-            if (openCount == 1) { openTicks = 0; }
+            if (openCount == 0) {
+                openTicks = 10;
+            }
+            if (openCount == 1) {
+                openTicks = 0;
+            }
             open = openCount > 0;
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
             return true;
@@ -59,14 +63,26 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, BackpackBlockEntity blockEntity) {
-        if (blockEntity.open && blockEntity.openTicks < 10) { ++blockEntity.openTicks; }
-        if (!blockEntity.open && blockEntity.openTicks > 0) { --blockEntity.openTicks; }
+        if (blockEntity.open && blockEntity.openTicks < 10) {
+            ++blockEntity.openTicks;
+        }
+        if (!blockEntity.open && blockEntity.openTicks > 0) {
+            --blockEntity.openTicks;
+        }
 
-        if (blockEntity.newlyPlaced && blockEntity.placeTicks < 20) { ++blockEntity.placeTicks; }
-        if (blockEntity.placeTicks == 20) { blockEntity.newlyPlaced = false; }
+        if (blockEntity.newlyPlaced && blockEntity.placeTicks < 20) {
+            ++blockEntity.placeTicks;
+        }
+        if (blockEntity.placeTicks == 20) {
+            blockEntity.newlyPlaced = false;
+        }
 
-        if (blockEntity.floatTicks < 90) { ++blockEntity.floatTicks; }
-        if (blockEntity.floatTicks == 90) { blockEntity.floatTicks = 0; }
+        if (blockEntity.floatTicks < 90) {
+            ++blockEntity.floatTicks;
+        }
+        if (blockEntity.floatTicks == 90) {
+            blockEntity.floatTicks = 0;
+        }
     }
 
     public void onOpen(Player player) {
@@ -94,11 +110,9 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
         }
     }
 
-
     protected Component getDefaultName() {
         return Component.translatable("container.backpack");
     }
-
 
     protected NonNullList<ItemStack> getItems() {
         return this.itemStacks;
@@ -107,7 +121,6 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
     protected void setItems(NonNullList<ItemStack> items) {
         this.itemStacks = items;
     }
-
 
     protected AbstractContainerMenu createMenu(int id, Inventory player) {
         return new ShulkerBoxMenu(id, player, this);

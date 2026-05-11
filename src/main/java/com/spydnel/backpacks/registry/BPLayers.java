@@ -22,7 +22,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
-@EventBusSubscriber(modid = Backpacks.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Backpacks.MOD_ID, value = Dist.CLIENT)
 public class BPLayers {
 
     public static final ModelLayerLocation BACKPACK = getLocation("backpack");
@@ -36,14 +36,14 @@ public class BPLayers {
         event.enqueueWork(() -> {
             ItemProperties.register(
                     BPItems.BACKPACK.asItem(),
-                    ResourceLocation.fromNamespaceAndPath(Backpacks.MODID, "dyed"),
+                    ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "dyed"),
                     (stack, level, player, seed) -> isDyed(stack)
             );
         });
     }
 
     private static ModelLayerLocation getLocation(String name) {
-        return new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Backpacks.MODID, name), "main");
+        return new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, name), "main");
     }
 
     private static float isDyed(ItemStack stack) {

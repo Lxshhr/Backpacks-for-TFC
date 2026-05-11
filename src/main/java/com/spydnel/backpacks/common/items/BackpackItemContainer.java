@@ -29,8 +29,7 @@ public class BackpackItemContainer extends SimpleContainer {
     }
 
     public boolean stillValid(Player player) {
-        return
-                target != null &&
+        return target != null &&
                 itemStack.is(BPItems.BACKPACK) &&
                 itemStack.has(DataComponents.CONTAINER) &&
                 player.distanceTo(target) < 5;

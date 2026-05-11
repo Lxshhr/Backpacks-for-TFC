@@ -19,8 +19,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-@SuppressWarnings("unused")
-@EventBusSubscriber(modid = Backpacks.MODID)
+@EventBusSubscriber(modid = Backpacks.MOD_ID)
 public class EntityInteractionEvents{
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
