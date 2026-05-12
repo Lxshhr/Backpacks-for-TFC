@@ -1,6 +1,7 @@
 package com.spydnel.backpacks.common.events;
 
 import com.spydnel.backpacks.Backpacks;
+import com.spydnel.backpacks.common.container.BackpackMenu;
 import com.spydnel.backpacks.common.items.BackpackItemContainer;
 import com.spydnel.backpacks.registry.BPItems;
 import net.minecraft.core.component.DataComponents;
@@ -10,7 +11,6 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ShulkerBoxMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.phys.Vec3;
@@ -30,9 +30,14 @@ public class EntityInteractionEvents{
 
         if (target != null && item.is(BPItems.BACKPACK) && isBehind(player, target)) {
             BackpackItemContainer container = new BackpackItemContainer(target, player);
-            if (!item.has(DataComponents.CONTAINER)) { item.set(DataComponents.CONTAINER, ItemContainerContents.EMPTY); }
+            if (!item.has(DataComponents.CONTAINER)) {
+                item.set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+            }
+
             item.get(DataComponents.CONTAINER).copyInto(container.getItems());
-            player.openMenu(new SimpleMenuProvider((a, b, c) -> new ShulkerBoxMenu(a, player.getInventory(), container), Component.translatable("container.backpack")));
+
+            player.openMenu(new SimpleMenuProvider((a, b, c) -> new BackpackMenu(a, player.getInventory(), container), Component.translatable("container.backpack")));
+
             event.setCancellationResult(InteractionResult.CONSUME);
             event.setCanceled(true);
         }

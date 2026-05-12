@@ -1,10 +1,12 @@
 package com.spydnel.backpacks;
 
+import com.spydnel.backpacks.config.ServerConfig;
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
 import com.spydnel.backpacks.networking.BackpackPayloadHandler;
 import com.spydnel.backpacks.registry.*;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -30,6 +32,9 @@ public class Backpacks
         BPItems.ITEMS.register(modEventBus);
         BPBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
         BPSounds.SOUND_EVENTS.register(modEventBus);
+        BPMenuTypes.MENU_TYPES.register(modEventBus);
+
+        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
     }
 
     @SubscribeEvent

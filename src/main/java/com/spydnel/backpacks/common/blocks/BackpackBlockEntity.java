@@ -1,7 +1,12 @@
 package com.spydnel.backpacks.common.blocks;
 
+import com.spydnel.backpacks.common.container.BackpackMenu;
+import com.spydnel.backpacks.config.ServerConfig;
 import com.spydnel.backpacks.registry.BPBlockEntities;
 import com.spydnel.backpacks.registry.BPSounds;
+import net.dries007.tfc.common.component.size.ItemSizeManager;
+import net.dries007.tfc.common.container.ISlotCallback;
+import net.dries007.tfc.common.container.PestContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -15,7 +20,6 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ShulkerBoxMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
@@ -24,7 +28,7 @@ import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
-public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
+public class BackpackBlockEntity extends RandomizableContainerBlockEntity implements PestContainer, ISlotCallback {
     private NonNullList<ItemStack> itemStacks;
 
     public int openTicks;
@@ -37,8 +41,22 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
 
     public BackpackBlockEntity(BlockPos pos, BlockState blockState) {
         super(BPBlockEntities.BACKPACK.get(), pos, blockState);
-        this.itemStacks = NonNullList.withSize(27, ItemStack.EMPTY);
+        this.itemStacks = NonNullList.withSize(18, ItemStack.EMPTY);
         this.newlyPlaced = true;
+    }
+
+    public static boolean isValid(ItemStack stack) {
+        return ItemSizeManager.get(stack).getSize(stack).isEqualOrSmallerThan(ServerConfig.backpackMaximumItemSize.get());
+    }
+
+    @Override
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return isValid(stack);
+    }
+
+    @Override
+    public boolean isItemValid(int slot, ItemStack stack) {
+        return isValid(stack);
     }
 
     public int getColor() {
@@ -123,7 +141,7 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity {
     }
 
     protected AbstractContainerMenu createMenu(int id, Inventory player) {
-        return new ShulkerBoxMenu(id, player, this);
+        return new BackpackMenu(id, player, this);
     }
 
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
