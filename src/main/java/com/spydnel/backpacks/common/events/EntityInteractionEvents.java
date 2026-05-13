@@ -1,35 +1,29 @@
 package com.spydnel.backpacks.common.events;
 
-import com.spydnel.backpacks.Backpacks;
+import com.spydnel.backpacks.common.container.BackpackItemMenu;
 import com.spydnel.backpacks.common.container.BackpackMenu;
-import com.spydnel.backpacks.common.items.BackpackItemContainer;
 import com.spydnel.backpacks.registry.BPItems;
+import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-@EventBusSubscriber(modid = Backpacks.MOD_ID)
 public class EntityInteractionEvents{
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
         LivingEntity target = event.getTarget() instanceof LivingEntity ? (LivingEntity) event.getTarget() : null;
-        ItemStack item = target != null ? target.getItemBySlot(EquipmentSlot.CHEST) : null;
+        ItemStack item = target != null ? BackpackUtils.getEquippedBackpack(target) : null;
 
         if (target != null && item.is(BPItems.BACKPACK) && isBehind(player, target)) {
-            BackpackItemContainer container = new BackpackItemContainer(target, player);
+            BackpackItemMenu container = new BackpackItemMenu(target, player);
             if (!item.has(DataComponents.CONTAINER)) {
                 item.set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
             }

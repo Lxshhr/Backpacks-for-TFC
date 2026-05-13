@@ -7,6 +7,7 @@ import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.common.blocks.BackpackBlock;
 import com.spydnel.backpacks.common.blocks.BackpackBlockEntity;
 import com.spydnel.backpacks.registry.BPLayers;
+import com.spydnel.backpacks.utils.BPUtils;
 import net.irisshaders.iris.shaderpack.materialmap.NamespacedId;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
@@ -26,9 +27,9 @@ import net.neoforged.fml.ModList;
 @OnlyIn(Dist.CLIENT)
 public class BackpackBlockRenderer implements BlockEntityRenderer<BackpackBlockEntity> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/entity/backpack.png");
-    private static final ResourceLocation OVERLAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/entity/backpack_overlay.png");
-    private static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/entity/backpack_base.png");
+    private static final ResourceLocation TEXTURE = BPUtils.loc("textures/entity/backpack.png");
+    private static final ResourceLocation OVERLAY_TEXTURE = BPUtils.loc("textures/entity/backpack_overlay.png");
+    private static final ResourceLocation BASE_TEXTURE = BPUtils.loc("textures/entity/backpack_base.png");
 
     private final ModelPart backpack;
     private final ModelPart base;
@@ -107,7 +108,7 @@ public class BackpackBlockRenderer implements BlockEntityRenderer<BackpackBlockE
 
         ResourceLocation location = OVERLAY_TEXTURE;
 
-        if (ModList.get().isLoaded("iris")) {
+        if (BPUtils.isModLoaded("iris")) {
             irisCompatStuff(location);
         }
 

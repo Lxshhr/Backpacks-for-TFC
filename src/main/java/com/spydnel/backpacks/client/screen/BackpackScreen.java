@@ -1,8 +1,8 @@
 package com.spydnel.backpacks.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.common.container.BackpackMenu;
+import com.spydnel.backpacks.utils.BPUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/gui/backpack_gui.png");
+    private static final ResourceLocation TEXTURE = BPUtils.loc( "textures/gui/backpack_gui.png");
 
     public BackpackScreen(BackpackMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

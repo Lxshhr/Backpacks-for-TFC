@@ -1,4 +1,4 @@
-package com.spydnel.backpacks.common.items;
+package com.spydnel.backpacks.common.container;
 
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
 import com.spydnel.backpacks.registry.BPItems;
@@ -14,14 +14,14 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class BackpackItemContainer extends SimpleContainer {
+public class BackpackItemMenu extends SimpleContainer {
     LivingEntity target;
     Player player;
     ItemStack itemStack;
     Level level;
 
-    public BackpackItemContainer(LivingEntity target, Player player) {
-        super(27);
+    public BackpackItemMenu(LivingEntity target, Player player) {
+        super(18);
         this.target = target;
         this.player = player;
         itemStack = target.getItemBySlot(EquipmentSlot.CHEST);

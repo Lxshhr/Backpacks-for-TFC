@@ -2,7 +2,11 @@ package com.spydnel.backpacks.common.items;
 
 import com.spydnel.backpacks.registry.BPSounds;
 import com.spydnel.backpacks.utils.BackpackUtils;
+import net.dries007.tfc.common.component.size.IItemSize;
+import net.dries007.tfc.common.component.size.Size;
+import net.dries007.tfc.common.component.size.Weight;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -15,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-public class BackpackItem extends BlockItem implements Equipable {
+public class BackpackItem extends BlockItem implements Equipable, IItemSize {
     public BackpackItem(Block block, Properties properties) {
         super(block, properties);
     }
@@ -45,7 +49,7 @@ public class BackpackItem extends BlockItem implements Equipable {
 
         if (BackpackUtils.equipBackpack(player, heldItem)) {
             if (!level.isClientSide) {
-                heldItem.shrink(1);
+                player.setItemInHand(hand, ItemStack.EMPTY);
                 player.level().playSound(null, player.blockPosition(), BPSounds.BACKPACK_EQUIP.value(), SoundSource.PLAYERS);
             }
             return InteractionResultHolder.sidedSuccess(ItemStack.EMPTY, level.isClientSide);
@@ -54,4 +58,13 @@ public class BackpackItem extends BlockItem implements Equipable {
         return InteractionResultHolder.pass(heldItem);
     }
 
+    @Override
+    public Size getSize(ItemStack itemStack) {
+        return Size.HUGE;
+    }
+
+    @Override
+    public Weight getWeight(ItemStack itemStack) {
+        return itemStack.has(DataComponents.CONTAINER) ? Weight.VERY_HEAVY : Weight.HEAVY;
+    }
 }

@@ -1,13 +1,15 @@
 package com.spydnel.backpacks;
 
+import com.spydnel.backpacks.client.BPClient;
+import com.spydnel.backpacks.common.events.BackpackPickupEvents;
+import com.spydnel.backpacks.common.events.EntityInteractionEvents;
 import com.spydnel.backpacks.config.ServerConfig;
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
 import com.spydnel.backpacks.networking.BackpackPayloadHandler;
 import com.spydnel.backpacks.registry.*;
-import net.minecraft.world.item.component.DyedItemColor;
-import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
@@ -21,8 +23,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 @Mod(Backpacks.MOD_ID)
-public class Backpacks
-{
+public class Backpacks {
     public static final String MOD_ID = "backpacks";
     public static final Logger LOGGER = LogUtils.getLogger();
 
@@ -35,10 +36,20 @@ public class Backpacks
         BPMenuTypes.MENU_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+
+        modEventBus.addListener(this::register);
+        modEventBus.addListener(this::addCreative);
+
+        modEventBus.addListener(BackpackPickupEvents::onItemEntityPickup);
+        modEventBus.addListener(BackpackPickupEvents::onRightClickBlock);
+        modEventBus.addListener(EntityInteractionEvents::onEntityInteract);
+
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            BPClient.init(modEventBus);
+        }
     }
 
-    @SubscribeEvent
-    public static void register(final RegisterPayloadHandlersEvent event) {
+    private void register(final RegisterPayloadHandlersEvent event) {
         // Sets the current network version
         final PayloadRegistrar registrar = event.registrar("1");
         registrar.playToClient(
@@ -48,16 +59,7 @@ public class Backpacks
         );
     }
 
-    @SubscribeEvent
-    public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, tintIndex) -> {
-                    return tintIndex == 0 ? -1 :DyedItemColor.getOrDefault(stack, -1);
-                },
-                BPItems.BACKPACK.value());
-    }
-
-    @SubscribeEvent
-    public static void addCreative(BuildCreativeModeTabContentsEvent event) {
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(BPItems.BACKPACK);
         }

@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPLayers;
+import com.spydnel.backpacks.utils.BPUtils;
 import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -34,10 +35,11 @@ import tech.thatgravyboat.vanity.common.item.DesignHelper;
 import static com.spydnel.backpacks.registry.BPDataAttatchments.OPEN_COUNT;
 import static com.spydnel.backpacks.registry.BPDataAttatchments.OPEN_TICKS;
 
+@SuppressWarnings("unchecked")
 @OnlyIn(Dist.CLIENT)
 public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M>{
-    private static ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/model/backpack.png");
-    private static ResourceLocation OVERLAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(Backpacks.MOD_ID, "textures/model/backpack_overlay.png");
+    private static ResourceLocation TEXTURE = BPUtils.loc("textures/model/backpack.png");
+    private static ResourceLocation OVERLAY_TEXTURE = BPUtils.loc("textures/model/backpack_overlay.png");
 
     private final ModelPart backpackModel;
     private final ModelPart otherBackpackModel;
@@ -57,7 +59,7 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
         ItemStack itemStack = BackpackUtils.getEquippedBackpack(livingEntity);
 
         if (shouldRender(itemStack) && BackpackUtils.isBackpackVisible(livingEntity)) {
-            if (ModList.get().isLoaded("vanity")) {
+            if (BPUtils.isModLoaded("vanity")) {
                 ResourceLocation design = DesignHelper.getStyle(itemStack) != null ? DesignHelper.getStyle(itemStack).getFirst() : null;
                 if (design == null) {
                     this.model = backpackModel;
@@ -73,7 +75,7 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
                 this.model = backpackModel;
             }
 
-            if (ModList.get().isLoaded("figura")) {
+            if (BPUtils.isModLoaded("figura")) {
                 figuraCompatStuff(poseStack, buffer, packedLight, livingEntity, partialTicks, itemStack, this);
             } else {
                 renderBaseLayer(poseStack, buffer, packedLight, livingEntity, partialTicks, itemStack, true);

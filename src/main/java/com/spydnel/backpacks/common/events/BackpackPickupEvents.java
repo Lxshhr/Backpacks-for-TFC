@@ -1,6 +1,5 @@
 package com.spydnel.backpacks.common.events;
 
-import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.common.blocks.BackpackBlockEntity;
 import com.spydnel.backpacks.registry.BPBlocks;
 import com.spydnel.backpacks.registry.BPItems;
@@ -9,14 +8,14 @@ import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.*;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -24,10 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.minecraft.world.InteractionResult;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -37,10 +32,9 @@ import java.util.Objects;
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.FACING;
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.WATERLOGGED;
 
-@EventBusSubscriber(modid = Backpacks.MOD_ID)
+
 public class BackpackPickupEvents {
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockPos pos = event.getPos();
         Level level = event.getLevel();
@@ -106,8 +100,6 @@ public class BackpackPickupEvents {
         }
     }
 
-    // Item Pickup
-    @SubscribeEvent
     public static void  onItemEntityPickup(ItemEntityPickupEvent.Pre event) {
         ItemEntity itemEntity = event.getItemEntity();
         ItemStack itemStack = itemEntity.getItem();
@@ -117,8 +109,9 @@ public class BackpackPickupEvents {
         if (itemStack.is(BPItems.BACKPACK) && hasContainer && !isEmpty) {
             Player player = event.getPlayer();
             if (BackpackUtils.canEquipBackpack(player) && !itemEntity.hasPickUpDelay()) {
-                BackpackUtils.equipBackpack(player, itemStack);
-                itemStack.shrink(1);
+                ItemStack backpack = itemStack.copy();
+                itemStack.setCount(0);
+                BackpackUtils.equipBackpack(player, backpack);
 
                 player.take(itemEntity, 1);
                 itemEntity.discard();
