@@ -40,10 +40,6 @@ public class Backpacks {
         modEventBus.addListener(this::register);
         modEventBus.addListener(this::addCreative);
 
-        modEventBus.addListener(BackpackPickupEvents::onItemEntityPickup);
-        modEventBus.addListener(BackpackPickupEvents::onRightClickBlock);
-        modEventBus.addListener(EntityInteractionEvents::onEntityInteract);
-
         if (FMLEnvironment.dist == Dist.CLIENT) {
             BPClient.init(modEventBus);
         }

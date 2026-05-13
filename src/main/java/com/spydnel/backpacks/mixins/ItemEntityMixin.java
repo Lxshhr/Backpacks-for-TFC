@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TraceableEntity;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,6 +32,15 @@ import static com.spydnel.backpacks.common.blocks.BackpackBlock.*;
 @Mixin(value = ItemEntity.class)
 public abstract class ItemEntityMixin extends Entity implements TraceableEntity {
 
+    @Shadow
+    public abstract ItemStack getItem();
+
+    @Shadow
+    public abstract int getAge();
+
+    @Shadow
+    public abstract void setExtendedLifetime();
+
     public ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
@@ -39,29 +50,42 @@ public abstract class ItemEntityMixin extends Entity implements TraceableEntity 
             at = @At("HEAD")
     )
     public void tick(CallbackInfo ci) {
-        ItemStack itemStack = ((ItemEntity)(Object)this).getItem();
-        boolean hasContainer = itemStack.has(DataComponents.CONTAINER);
-        boolean isEmpty = Objects.equals(itemStack.get(DataComponents.CONTAINER), ItemContainerContents.EMPTY);
+        ItemStack itemStack = this.getItem();
 
-        if (itemStack.is(BPItems.BACKPACK) && hasContainer && !isEmpty) {
-            if (((ItemEntity)(Object)this).getAge() > 0) { ((ItemEntity)(Object)this).setExtendedLifetime(); }
+        if (!itemStack.is(BPItems.BACKPACK.get())) {
+            return;
+        }
+
+        boolean hasContainer = itemStack.has(DataComponents.CONTAINER);
+        ItemContainerContents container = itemStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        boolean isEmpty = !hasContainer || container.stream().allMatch(ItemStack::isEmpty);
+
+        if (hasContainer && !isEmpty) {
+            if (this.getAge() > 0 ) {
+                this.setExtendedLifetime();
+            }
 
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.9, 1.0,0.9));
-            if (this.isInFluidType()) { this.getDeltaMovement().add(0.0, 20.0, 0.0); }
 
-            Level level = level();
-            BlockPos pos = this.getOnPos();
-            boolean isUnobstructed = level.getBlockState(pos.above()).canBeReplaced() &&
-                    (!level.getFluidState(pos.above()).isSource() || !level.getBlockState(pos.above(2)).canBeReplaced());
+            if (this.isInFluidType()) {
+                this.getDeltaMovement().add(0.0, 20.0, 0.0);
+            }
 
-            if ((!level.getBlockState(pos).is(BlockTags.REPLACEABLE) || level.getFluidState(pos).isSource()) && isUnobstructed) {
+            Level level = this.level();
+            BlockPos pos = this.blockPosition();
+            BlockPos targetPos = level.getBlockState(pos).canBeReplaced() ? pos : pos.above();
+
+            boolean isUnobstructed = level.getBlockState(targetPos).canBeReplaced() &&
+                    (!level.getFluidState(targetPos).isSource() || !level.getBlockState(targetPos.above()).canBeReplaced());
+
+            if ((this.onGround() || level.getFluidState(pos).isSource()) && isUnobstructed) {
 
                 BlockState state = BPBlocks.BACKPACK.get().defaultBlockState()
-                        .setValue(FACING, getDirection())
-                        .setValue(FLOATING, level.getFluidState(pos).isSource() && !level.getFluidState(pos.above()).isSource())
-                        .setValue(WATERLOGGED, level.getFluidState(pos.above()).getType() == Fluids.WATER);
+                        .setValue(FACING, this.getDirection())
+                        .setValue(FLOATING, level.getFluidState(targetPos.below()).isSource() && !level.getFluidState(targetPos).isSource())
+                        .setValue(WATERLOGGED, level.getFluidState(targetPos).getType().is(FluidTags.WATER));
 
-                BlockEntity blockEntity = new BackpackBlockEntity(pos.above(), state);
+                BlockEntity blockEntity = new BackpackBlockEntity(targetPos, state);
                 blockEntity.applyComponentsFromItemStack(itemStack);
 
                 if (!level.isClientSide) {

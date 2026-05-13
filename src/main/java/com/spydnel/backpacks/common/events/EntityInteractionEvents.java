@@ -1,5 +1,6 @@
 package com.spydnel.backpacks.common.events;
 
+import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.common.container.BackpackItemMenu;
 import com.spydnel.backpacks.common.container.BackpackMenu;
 import com.spydnel.backpacks.registry.BPItems;
@@ -13,10 +14,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
+@EventBusSubscriber(modid = Backpacks.MOD_ID)
 public class EntityInteractionEvents{
 
+    @SubscribeEvent
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
         LivingEntity target = event.getTarget() instanceof LivingEntity ? (LivingEntity) event.getTarget() : null;

@@ -1,5 +1,6 @@
 package com.spydnel.backpacks.common.events;
 
+import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.common.blocks.BackpackBlockEntity;
 import com.spydnel.backpacks.registry.BPBlocks;
 import com.spydnel.backpacks.registry.BPItems;
@@ -23,6 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -32,9 +35,10 @@ import java.util.Objects;
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.FACING;
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.WATERLOGGED;
 
-
+@EventBusSubscriber(modid = Backpacks.MOD_ID)
 public class BackpackPickupEvents {
 
+    @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockPos pos = event.getPos();
         Level level = event.getLevel();
@@ -100,6 +104,7 @@ public class BackpackPickupEvents {
         }
     }
 
+    @SubscribeEvent
     public static void  onItemEntityPickup(ItemEntityPickupEvent.Pre event) {
         ItemEntity itemEntity = event.getItemEntity();
         ItemStack itemStack = itemEntity.getItem();
