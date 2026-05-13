@@ -8,11 +8,18 @@ public class ServerConfig {
 
     public static final ModConfigSpec.EnumValue<Size> backpackMaximumItemSize;
 
+    public static final ModConfigSpec.BooleanValue enableCuriosCompat;
+
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.push("backpack");
         backpackMaximumItemSize = builder.comment("The largest (inclusive) size of an item that is allowed in a backpack").defineEnum("backpackMaximumItemSize", Size.LARGE);
+
+        builder.pop();
+
+        builder.push("compat");
+        enableCuriosCompat = builder.comment("Enable equipping backpack in the curios slot").define("enableCuriosCompat", true);
 
         builder.pop();
         SPEC = builder.build();

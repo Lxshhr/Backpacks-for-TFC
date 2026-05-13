@@ -1,8 +1,10 @@
 package com.spydnel.backpacks.common.items;
 
 import com.spydnel.backpacks.registry.BPSounds;
+import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -35,7 +37,21 @@ public class BackpackItem extends BlockItem implements Equipable {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        return this.swapWithEquipmentSlot(this, level, player, hand);
+        ItemStack heldItem = player.getItemInHand(hand);
+
+        if (!BackpackUtils.canEquipBackpack(player)) {
+            return InteractionResultHolder.fail(heldItem);
+        }
+
+        if (BackpackUtils.equipBackpack(player, heldItem)) {
+            if (!level.isClientSide) {
+                heldItem.shrink(1);
+                player.level().playSound(null, player.blockPosition(), BPSounds.BACKPACK_EQUIP.value(), SoundSource.PLAYERS);
+            }
+            return InteractionResultHolder.sidedSuccess(ItemStack.EMPTY, level.isClientSide);
+        }
+
+        return InteractionResultHolder.pass(heldItem);
     }
 
 }

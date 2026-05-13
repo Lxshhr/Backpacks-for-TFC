@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPLayers;
+import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
@@ -53,9 +54,9 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
     }
 
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float headYaw, float headPitch) {
-        ItemStack itemStack = livingEntity.getItemBySlot(EquipmentSlot.CHEST);
+        ItemStack itemStack = BackpackUtils.getEquippedBackpack(livingEntity);
 
-        if (shouldRender(itemStack)) {
+        if (shouldRender(itemStack) && BackpackUtils.isBackpackVisible(livingEntity)) {
             if (ModList.get().isLoaded("vanity")) {
                 ResourceLocation design = DesignHelper.getStyle(itemStack) != null ? DesignHelper.getStyle(itemStack).getFirst() : null;
                 if (design == null) {

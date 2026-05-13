@@ -5,6 +5,7 @@ import com.spydnel.backpacks.common.blocks.BackpackBlockEntity;
 import com.spydnel.backpacks.registry.BPBlocks;
 import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPSounds;
+import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -43,26 +44,31 @@ public class BackpackPickupEvents {
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockPos pos = event.getPos();
         Level level = event.getLevel();
-        BlockEntity blockEntity = level.getBlockEntity(pos);
         Block block = level.getBlockState(pos).getBlock();
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+
         Player player = event.getEntity();
         InteractionHand hand = event.getHand();
 
         ItemStack heldItem = player.getItemInHand(hand);
-        ItemStack chestSlotItem = player.getItemBySlot(EquipmentSlot.CHEST);
 
-        boolean hasBackpack = chestSlotItem.is(BPItems.BACKPACK);
-        boolean hasChestPlate = !chestSlotItem.isEmpty();
+        boolean hasBackpack = BackpackUtils.hasBackpack(player);
+        boolean canEquipBackpack = BackpackUtils.canEquipBackpack(player);
+        boolean isBackpackBlock = block == BPBlocks.BACKPACK.get();
+
         boolean isAbove = (pos.above().getY() > player.getEyeY());
-        boolean isUnobstructed = level.isUnobstructed(BPBlocks.BACKPACK.get().defaultBlockState(), pos.above(),
-                CollisionContext.of(player)) && level.getBlockState(pos.above()).canBeReplaced();
+        boolean isUnobstructed = level.getBlockState(pos.above()).canBeReplaced() &&
+                level.isUnobstructed(BPBlocks.BACKPACK.get().defaultBlockState(), pos.above(), CollisionContext.of(player)) &&
+                !level.isOutsideBuildHeight(pos.above());
 
         // Pickup
-        if (player.isShiftKeyDown() && !hasChestPlate && block == BPBlocks.BACKPACK.get() && blockEntity != null) {
+        if (player.isShiftKeyDown() && canEquipBackpack && isBackpackBlock && blockEntity != null) {
             player.swing(InteractionHand.MAIN_HAND);
             ItemStack itemstack = new ItemStack(BPBlocks.BACKPACK);
             itemstack.applyComponents(blockEntity.collectComponents());
-            player.setItemSlot(EquipmentSlot.CHEST, itemstack);
+
+            BackpackUtils.equipBackpack(player, itemstack);
+
             addParticles(level, pos);
 
             if (!level.isClientSide) {
@@ -76,6 +82,8 @@ public class BackpackPickupEvents {
 
         // Placement
         if (player.isShiftKeyDown() && heldItem.isEmpty() && hasBackpack && event.getFace() == Direction.UP && !isAbove && isUnobstructed) {
+            ItemStack backpack = BackpackUtils.getEquippedBackpack(player);
+
             player.swing(InteractionHand.MAIN_HAND);
 
             BlockState state = BPBlocks.BACKPACK.get().defaultBlockState()
@@ -83,35 +91,16 @@ public class BackpackPickupEvents {
                     .setValue(WATERLOGGED, level.getFluidState(pos.above()).getType() == Fluids.WATER);
 
             blockEntity = new BackpackBlockEntity(pos.above(), state);
-            blockEntity.applyComponentsFromItemStack(chestSlotItem);
+            blockEntity.applyComponentsFromItemStack(backpack);
 
             if (!level.isClientSide) {
                 level.setBlockAndUpdate(pos.above(), state);
                 level.setBlockEntity(blockEntity);
 
-                chestSlotItem.shrink(1);
+                backpack.shrink(1);
                 level.playSound(null, pos.above(), BPSounds.BACKPACK_PLACE.value(), SoundSource.BLOCKS);
             }
 
-            event.setCancellationResult(InteractionResult.FAIL);
-            event.setCanceled(true);
-        }
-    }
-
-    // Armor Swapping
-    @SubscribeEvent
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        Item item = event.getItemStack().getItem();
-        EquipmentSlot slot = null;
-
-        if (item instanceof ArmorItem armorItem) {
-            slot = armorItem.getEquipmentSlot();
-        }
-        if (item instanceof Equipable equipableItem) {
-            slot = equipableItem.getEquipmentSlot();
-        }
-
-        if (slot == EquipmentSlot.CHEST && event.getEntity().getItemBySlot(EquipmentSlot.CHEST).is(BPItems.BACKPACK)) {
             event.setCancellationResult(InteractionResult.FAIL);
             event.setCanceled(true);
         }
@@ -127,8 +116,10 @@ public class BackpackPickupEvents {
 
         if (itemStack.is(BPItems.BACKPACK) && hasContainer && !isEmpty) {
             Player player = event.getPlayer();
-            if (player.getItemBySlot(EquipmentSlot.CHEST).isEmpty() && !itemEntity.hasPickUpDelay()) {
-                player.setItemSlot(EquipmentSlot.CHEST, itemStack);
+            if (BackpackUtils.canEquipBackpack(player) && !itemEntity.hasPickUpDelay()) {
+                BackpackUtils.equipBackpack(player, itemStack);
+                itemStack.shrink(1);
+
                 player.take(itemEntity, 1);
                 itemEntity.discard();
                 player.awardStat(Stats.ITEM_PICKED_UP.get(itemStack.getItem()), 1);

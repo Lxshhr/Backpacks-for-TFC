@@ -100,6 +100,10 @@ repositories {
         }
         filter { includeGroup("maven.modrinth") }
     }
+    maven {// Curios
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
 }
 
 dependencies {
@@ -113,6 +117,10 @@ dependencies {
     implementation "maven.modrinth:terrafirmacraft:${tfc_version}"
     compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}:api"
     runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
+
+    // Curios
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     // Other
     compileOnly "maven.modrinth:iris:oXIoDcGE"
