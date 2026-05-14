@@ -1,15 +1,17 @@
 package com.spydnel.backpacks;
 
 import com.spydnel.backpacks.client.BPClient;
-import com.spydnel.backpacks.common.events.BackpackPickupEvents;
-import com.spydnel.backpacks.common.events.EntityInteractionEvents;
+import com.spydnel.backpacks.client.BPClientEvents;
 import com.spydnel.backpacks.config.ServerConfig;
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
-import com.spydnel.backpacks.networking.BackpackPayloadHandler;
+import com.spydnel.backpacks.networking.OpenBackpackContainerPayload;
 import com.spydnel.backpacks.registry.*;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
@@ -38,11 +40,14 @@ public class Backpacks {
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
 
         modEventBus.addListener(this::register);
+        modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(this::addCreative);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             BPClient.init(modEventBus);
         }
+
+        BPClientEvents.init();
     }
 
     private void register(final RegisterPayloadHandlersEvent event) {
@@ -51,7 +56,21 @@ public class Backpacks {
         registrar.playToClient(
                 BackpackOpenPayload.TYPE,
                 BackpackOpenPayload.STREAM_CODEC,
-                BackpackPayloadHandler::handleClientData
+                BackpackOpenPayload::handleClientData
+        );
+
+        registrar.playToServer(
+                OpenBackpackContainerPayload.TYPE,
+                OpenBackpackContainerPayload.STREAM_CODEC,
+                OpenBackpackContainerPayload::handle
+        );
+    }
+
+    private void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                BPBlockEntities.BACKPACK.get(),
+                (container, type) -> new InvWrapper(container)
         );
     }
 

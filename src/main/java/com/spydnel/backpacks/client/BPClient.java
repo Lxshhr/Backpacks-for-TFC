@@ -5,22 +5,32 @@ import com.spydnel.backpacks.client.models.variants.OtherBackpackModel;
 import com.spydnel.backpacks.client.rendering.BackpackBlockRenderer;
 import com.spydnel.backpacks.client.rendering.BackpackLayer;
 import com.spydnel.backpacks.client.screen.BackpackScreen;
-import com.spydnel.backpacks.registry.BPBlockEntities;
-import com.spydnel.backpacks.registry.BPItems;
-import com.spydnel.backpacks.registry.BPLayers;
-import com.spydnel.backpacks.registry.BPMenuTypes;
+import com.spydnel.backpacks.common.container.BackpackItemMenu;
+import com.spydnel.backpacks.common.container.BackpackMenu;
+import com.spydnel.backpacks.networking.OpenBackpackContainerPayload;
+import com.spydnel.backpacks.registry.*;
 import com.spydnel.backpacks.utils.BPUtils;
+import com.spydnel.backpacks.utils.BackpackUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ArmorStandRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BPClient {
 
@@ -31,6 +41,7 @@ public class BPClient {
         modEventBus.addListener(BPClient::registerItemColors);
         modEventBus.addListener(BPClient::registerEntityRenderers);
         modEventBus.addListener(BPClient::registerPlayerLayers);
+        modEventBus.addListener(BPClient::registerKeyBindings);
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
@@ -74,6 +85,11 @@ public class BPClient {
             armorStandRenderer.addLayer(new BackpackLayer<>(armorStandRenderer, event.getEntityModels()));
         }
     }
+
+    private static void registerKeyBindings(RegisterKeyMappingsEvent event) {
+        event.register(BPKeyBindings.OPEN_BACKPACK);
+    }
+
 
 //
 //    @SubscribeEvent

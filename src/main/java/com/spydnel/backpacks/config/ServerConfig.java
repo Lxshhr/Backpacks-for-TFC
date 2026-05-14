@@ -7,6 +7,7 @@ public class ServerConfig {
     public static final ModConfigSpec SPEC;
 
     public static final ModConfigSpec.EnumValue<Size> backpackMaximumItemSize;
+    public static final ModConfigSpec.BooleanValue placeBackpackOnDeath;
 
     public static final ModConfigSpec.BooleanValue enableCuriosCompat;
 
@@ -15,6 +16,7 @@ public class ServerConfig {
 
         builder.push("backpack");
         backpackMaximumItemSize = builder.comment("The largest (inclusive) size of an item that is allowed in a backpack").defineEnum("backpackMaximumItemSize", Size.LARGE);
+        placeBackpackOnDeath = builder.comment("Place the backpack as a block on death").define("placeBackpackOnDeath", true);
 
         builder.pop();
 

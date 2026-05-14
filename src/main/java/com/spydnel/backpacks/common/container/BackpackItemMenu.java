@@ -3,6 +3,7 @@ package com.spydnel.backpacks.common.container;
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
 import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPSounds;
+import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleContainer;
@@ -24,19 +25,18 @@ public class BackpackItemMenu extends SimpleContainer {
         super(18);
         this.target = target;
         this.player = player;
-        itemStack = target.getItemBySlot(EquipmentSlot.CHEST);
+        itemStack = BackpackUtils.getEquippedBackpack(target);
         level = target.level();
     }
 
     public boolean stillValid(Player player) {
-        return target != null &&
-                itemStack.is(BPItems.BACKPACK) &&
-                itemStack.has(DataComponents.CONTAINER) &&
-                player.distanceTo(target) < 5;
+        return target != null && itemStack.is(BPItems.BACKPACK) &&
+                itemStack.has(DataComponents.CONTAINER) && player.distanceTo(target) < 5;
     }
 
     public void setChanged() {
-        target.getItemBySlot(EquipmentSlot.CHEST).set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.getItems()));
+        ItemStack current = BackpackUtils.getEquippedBackpack(this.target);
+        current.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.getItems()));
         super.setChanged();
     }
 

@@ -1,6 +1,7 @@
 package com.spydnel.backpacks.mixins;
 
 import com.spydnel.backpacks.common.blocks.BackpackBlockEntity;
+import com.spydnel.backpacks.config.ServerConfig;
 import com.spydnel.backpacks.registry.BPBlocks;
 import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPSounds;
@@ -50,6 +51,9 @@ public abstract class ItemEntityMixin extends Entity implements TraceableEntity 
             at = @At("HEAD")
     )
     public void tick(CallbackInfo ci) {
+        if (!ServerConfig.placeBackpackOnDeath.get()) {
+            return;
+        }
         ItemStack itemStack = this.getItem();
 
         if (!itemStack.is(BPItems.BACKPACK.get())) {
