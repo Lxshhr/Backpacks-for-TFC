@@ -1,15 +1,13 @@
 package com.spydnel.backpacks.mixins;
 
 import com.spydnel.backpacks.common.blocks.BackpackBlockEntity;
-import com.spydnel.backpacks.config.ServerConfig;
+import com.spydnel.backpacks.config.BPCommonConfig;
 import com.spydnel.backpacks.registry.BPBlocks;
 import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TraceableEntity;
@@ -17,7 +15,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,8 +22,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Objects;
 
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.*;
 
@@ -50,12 +45,12 @@ public abstract class ItemEntityMixin extends Entity implements TraceableEntity 
             method = "tick",
             at = @At("HEAD")
     )
-    public void tick(CallbackInfo ci) {
-        if (!ServerConfig.placeBackpackOnDeath.get()) {
+    public void backpacks$tick(CallbackInfo ci) {
+        if (!BPCommonConfig.placeBackpackOnDeath.get()) {
             return;
         }
-        ItemStack itemStack = this.getItem();
 
+        ItemStack itemStack = this.getItem();
         if (!itemStack.is(BPItems.BACKPACK.get())) {
             return;
         }
@@ -72,14 +67,14 @@ public abstract class ItemEntityMixin extends Entity implements TraceableEntity 
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.9, 1.0,0.9));
 
             if (this.isInFluidType()) {
-                this.getDeltaMovement().add(0.0, 20.0, 0.0);
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.02, 0.0));
             }
 
             Level level = this.level();
             BlockPos pos = this.blockPosition();
             BlockPos targetPos = level.getBlockState(pos).canBeReplaced() ? pos : pos.above();
 
-            boolean isUnobstructed = level.getBlockState(targetPos).canBeReplaced() &&
+            boolean isUnobstructed = !level.isOutsideBuildHeight(targetPos) && level.getBlockState(targetPos).canBeReplaced() &&
                     (!level.getFluidState(targetPos).isSource() || !level.getBlockState(targetPos.above()).canBeReplaced());
 
             if ((this.onGround() || level.getFluidState(pos).isSource()) && isUnobstructed) {
@@ -87,15 +82,18 @@ public abstract class ItemEntityMixin extends Entity implements TraceableEntity 
                 BlockState state = BPBlocks.BACKPACK.get().defaultBlockState()
                         .setValue(FACING, this.getDirection())
                         .setValue(FLOATING, level.getFluidState(targetPos.below()).isSource() && !level.getFluidState(targetPos).isSource())
-                        .setValue(WATERLOGGED, level.getFluidState(targetPos).getType().is(FluidTags.WATER));
+                        .setValue(WATERLOGGED, level.getFluidState(targetPos).getType() == Fluids.WATER);
 
-                BlockEntity blockEntity = new BackpackBlockEntity(targetPos, state);
+                BackpackBlockEntity blockEntity = new BackpackBlockEntity(targetPos, state);
                 blockEntity.applyComponentsFromItemStack(itemStack);
 
+                blockEntity.newlyPlaced = true;
+                blockEntity.placeTicks = 0;
+
                 if (!level.isClientSide) {
-                    level.setBlockAndUpdate(pos.above(), state);
+                    level.setBlockAndUpdate(targetPos, state);
                     level.setBlockEntity(blockEntity);
-                    level.playSound(null, pos.above(), BPSounds.BACKPACK_PLACE.value(), SoundSource.BLOCKS);
+                    level.playSound(null, targetPos, BPSounds.BACKPACK_PLACE.value(), SoundSource.BLOCKS);
                 }
 
                 this.discard();

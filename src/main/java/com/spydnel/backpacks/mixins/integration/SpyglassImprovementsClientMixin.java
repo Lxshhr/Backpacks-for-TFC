@@ -29,7 +29,7 @@ public abstract class SpyglassImprovementsClientMixin {
     private void forceUseSpyglass(LocalPlayer player) { }
 
     @Inject(method = "onClientTick", at = @At("HEAD"))
-    public void onClientTick(Minecraft client, CallbackInfo ci) {
+    public void backpacks$onClientTick(Minecraft client, CallbackInfo ci) {
         if (client.player != null && client.gameMode != null && useSpyglass.isDown()) {
             ItemStack backpack = BackpackUtils.getEquippedBackpack(client.player);
             if (((MinecraftClientInvoker) client).getItemUseCooldown() == 0 &&

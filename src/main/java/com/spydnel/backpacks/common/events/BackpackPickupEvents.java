@@ -26,7 +26,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
@@ -123,7 +122,6 @@ public class BackpackPickupEvents {
                 player.awardStat(Stats.ITEM_PICKED_UP.get(itemStack.getItem()), 1);
                 player.onItemPickup(itemEntity);
             }
-            event.setCanPickup(TriState.FALSE);
         }
     }
 

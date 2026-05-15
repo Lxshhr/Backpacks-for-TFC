@@ -19,7 +19,7 @@ public abstract class CapeLayerMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+    public void backpacks$render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (BackpackUtils.hasBackpack(livingEntity) && BackpackUtils.isBackpackVisible(livingEntity)) {
             ci.cancel();
         }

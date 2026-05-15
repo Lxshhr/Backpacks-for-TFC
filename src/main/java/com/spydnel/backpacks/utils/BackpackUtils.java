@@ -1,7 +1,7 @@
 package com.spydnel.backpacks.utils;
 
 import com.spydnel.backpacks.compat.CuriosUtils;
-import com.spydnel.backpacks.config.ServerConfig;
+import com.spydnel.backpacks.config.BPCommonConfig;
 import com.spydnel.backpacks.registry.BPItems;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,8 +10,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class BackpackUtils {
 
-    private static boolean curiosEnabled() {
-        return BPUtils.isModLoaded("curios") && ServerConfig.enableCuriosCompat.get();
+    public static boolean curiosEnabled() {
+        return BPUtils.isModLoaded("curios") && BPCommonConfig.enableCuriosCompat.get();
     }
 
     public static ItemStack getEquippedBackpack(LivingEntity entity) {

@@ -59,15 +59,18 @@ public class BackpackBlock extends BaseEntityBlock implements Equipable, EntityB
 
     }
 
+    @Override
     public MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(FACING, FLOATING, WATERLOGGED);
     }
 
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
@@ -78,6 +81,7 @@ public class BackpackBlock extends BaseEntityBlock implements Equipable, EntityB
                 .setValue(WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
     }
 
+    @Override
     protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -85,10 +89,12 @@ public class BackpackBlock extends BaseEntityBlock implements Equipable, EntityB
         return state.setValue(FLOATING, level.getFluidState(currentPos.below()).isSource());
     }
 
+    @Override
     protected FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
+    @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction direction = state.getValue(FACING);
         if (state.getValue(FLOATING)) {
@@ -96,7 +102,6 @@ public class BackpackBlock extends BaseEntityBlock implements Equipable, EntityB
         } else {
             return direction.getAxis() == Direction.Axis.X ? SHAPE_Z : SHAPE_X;
         }
-
     }
 
     @Nullable
@@ -104,10 +109,12 @@ public class BackpackBlock extends BaseEntityBlock implements Equipable, EntityB
         return createTickerHelper(type, BPBlockEntities.BACKPACK.get(), BackpackBlockEntity::tick);
     }
 
+    @Override
     public EquipmentSlot getEquipmentSlot() {
         return EquipmentSlot.CHEST;
     }
 
+    @Override
     public Holder<SoundEvent> getEquipSound() {
         return BPSounds.BACKPACK_EQUIP;
     }

@@ -15,7 +15,6 @@ public class BackpackMenu extends AbstractContainerMenu {
     private final Container container;
     private final Player player;
 
-
     public BackpackMenu(int containerId, Inventory playerInv, FriendlyByteBuf buf) {
         this(containerId, playerInv, new SimpleContainer(18));
     }

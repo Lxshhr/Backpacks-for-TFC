@@ -1,28 +1,27 @@
 package com.spydnel.backpacks;
 
+import com.mojang.logging.LogUtils;
 import com.spydnel.backpacks.client.BPClient;
 import com.spydnel.backpacks.client.BPClientEvents;
-import com.spydnel.backpacks.config.ServerConfig;
+import com.spydnel.backpacks.config.BPCommonConfig;
+import com.spydnel.backpacks.config.BPServerConfig;
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
 import com.spydnel.backpacks.networking.OpenBackpackContainerPayload;
 import com.spydnel.backpacks.registry.*;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
-import net.minecraft.world.item.CreativeModeTabs;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 @Mod(Backpacks.MOD_ID)
 public class Backpacks {
@@ -37,7 +36,8 @@ public class Backpacks {
         BPSounds.SOUND_EVENTS.register(modEventBus);
         BPMenuTypes.MENU_TYPES.register(modEventBus);
 
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, BPCommonConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, BPServerConfig.SPEC);
 
         modEventBus.addListener(this::register);
         modEventBus.addListener(this::registerCapabilities);

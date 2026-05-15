@@ -16,7 +16,9 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackMenu> {
     public BackpackScreen(BackpackMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
 
-        this.inventoryLabelY = 55;
+        this.inventoryLabelY = 56;
+        this.imageHeight = 148;
+        this.imageWidth = 176;
     }
 
     @Override

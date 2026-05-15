@@ -1,7 +1,7 @@
 package com.spydnel.backpacks.common.blocks;
 
 import com.spydnel.backpacks.common.container.BackpackMenu;
-import com.spydnel.backpacks.config.ServerConfig;
+import com.spydnel.backpacks.config.BPServerConfig;
 import com.spydnel.backpacks.registry.BPBlockEntities;
 import com.spydnel.backpacks.registry.BPSounds;
 import net.dries007.tfc.common.component.size.ItemSizeManager;
@@ -24,7 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
@@ -46,7 +47,7 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity implem
     }
 
     public static boolean isValid(ItemStack stack) {
-        return ItemSizeManager.get(stack).getSize(stack).isEqualOrSmallerThan(ServerConfig.backpackMaximumItemSize.get());
+        return ItemSizeManager.get(stack).getSize(stack).isEqualOrSmallerThan(BPServerConfig.backpackMaximumItemSize.get());
     }
 
     @Override
@@ -128,31 +129,38 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity implem
         }
     }
 
+    @Override
     protected Component getDefaultName() {
         return Component.translatable("container.backpack");
     }
 
+    @Override
     protected NonNullList<ItemStack> getItems() {
         return this.itemStacks;
     }
 
+    @Override
     protected void setItems(NonNullList<ItemStack> items) {
         this.itemStacks = items;
     }
 
+    @Override
     protected AbstractContainerMenu createMenu(int id, Inventory player) {
         return new BackpackMenu(id, player, this);
     }
 
+    @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.loadFromTag(tag, registries);
     }
 
+    @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         if (!this.trySaveLootTable(tag)) {
@@ -167,17 +175,18 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity implem
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
-
         saveAdditional(tag, registries);
         return tag;
     }
 
+    @Override
     protected void applyImplicitComponents(BlockEntity.DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
         DyedItemColor dyedItemColor = componentInput.get(DataComponents.DYED_COLOR);
         this.color = dyedItemColor != null ? dyedItemColor.rgb() : 0;
     }
 
+    @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
         if (color != 0) {
