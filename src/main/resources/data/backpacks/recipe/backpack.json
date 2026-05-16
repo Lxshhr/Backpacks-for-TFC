@@ -1,24 +1,33 @@
 {
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:not",
-      "value": {
-        "type": "neoforge:mod_loaded",
-        "modid": "farmersdelight"
-      }
-    }
-  ],
-  "type": "minecraft:crafting_shaped",
+  "type": "tfc:advanced_shaped_crafting",
   "key": {
-    "#": {
+    "L": {
       "item": "minecraft:leather"
+    },
+    "S" : {
+      "tag": "c:strings"
+    },
+    "B" : {
+      "tag": "tfc:double_sheets/any_bronze"
+    },
+    "N": {
+      "item": "tfc:bone_needle"
     }
   },
   "pattern": [
-    "###",
-    "# #",
-    "###"
+    "SL ",
+    "LBL",
+    "SLN"
   ],
+  "remainder": {
+    "modifiers": [
+      {
+        "type": "tfc:damage_crafting_remainder"
+      }
+    ]
+  },
+  "input_row": 2,
+  "input_column": 2,
   "result": {
     "count": 1,
     "id": "backpacks:backpack"
