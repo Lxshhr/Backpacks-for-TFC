@@ -42,38 +42,21 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
     private static ResourceLocation OVERLAY_TEXTURE = BPUtils.loc("textures/model/backpack_overlay.png");
 
     private final ModelPart backpackModel;
-    private final ModelPart otherBackpackModel;
+    private final ModelPart parentBody;
 
     private ModelPart model;
-
-    private final ModelPart parentBody;
 
     public BackpackLayer(RenderLayerParent renderer, EntityModelSet entityModelSet) {
         super(renderer);
         this.backpackModel = entityModelSet.bakeLayer(BPLayers.BACKPACK);
-        this.otherBackpackModel = entityModelSet.bakeLayer(BPLayers.OTHER_BACKPACK);
-        this.parentBody = this.getParentBody(renderer);
+        this.parentBody = this.getParentBody();
     }
 
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float headYaw, float headPitch) {
         ItemStack itemStack = BackpackUtils.getEquippedBackpack(livingEntity);
 
         if (shouldRender(itemStack) && BackpackUtils.isBackpackVisible(livingEntity)) {
-            if (BPUtils.isModLoaded("vanity")) {
-                ResourceLocation design = DesignHelper.getStyle(itemStack) != null ? DesignHelper.getStyle(itemStack).getFirst() : null;
-                if (design == null) {
-                    this.model = backpackModel;
-                } else {
-                    String path = design.toString();
-                    if (path.equals("backpacks:test")) {
-                        this.model = otherBackpackModel;
-                    } else {
-                        this.model = backpackModel;
-                    }
-                }
-            } else {
-                this.model = backpackModel;
-            }
+            this.model = backpackModel;
 
             if (BPUtils.isModLoaded("figura")) {
                 figuraCompatStuff(poseStack, buffer, packedLight, livingEntity, partialTicks, itemStack, this);
@@ -144,7 +127,7 @@ public class BackpackLayer<T extends LivingEntity, M extends HumanoidModel<T>> e
         return stack.getItem() == BPItems.BACKPACK.asItem();
     }
 
-    protected ModelPart getParentBody(RenderLayerParent<T, HumanoidModel<T>> renderer) {
+    protected ModelPart getParentBody() {
         return this.getParentModel().body;
     }
 }

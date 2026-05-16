@@ -7,9 +7,6 @@ public class BPLayers {
     public static final ModelLayerLocation BACKPACK = getLocation("backpack");
     public static final ModelLayerLocation BACKPACK_BLOCK = getLocation("backpack_block");
 
-    public static final ModelLayerLocation OTHER_BACKPACK = getLocation("other_backpack");
-    public static final ModelLayerLocation OTHER_BACKPACK_BLOCK = getLocation("other_backpack_block");
-
     private static ModelLayerLocation getLocation(String name) {
         return new ModelLayerLocation(BPUtils.loc(name), "main");
     }

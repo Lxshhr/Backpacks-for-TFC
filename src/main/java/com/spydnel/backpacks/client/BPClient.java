@@ -1,7 +1,6 @@
 package com.spydnel.backpacks.client;
 
 import com.spydnel.backpacks.client.models.BackpackModel;
-import com.spydnel.backpacks.client.models.variants.OtherBackpackModel;
 import com.spydnel.backpacks.client.rendering.BackpackBlockRenderer;
 import com.spydnel.backpacks.client.rendering.BackpackLayer;
 import com.spydnel.backpacks.client.screen.BackpackScreen;
@@ -48,9 +47,6 @@ public class BPClient {
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(BPLayers.BACKPACK, BackpackModel::createBodyLayer);
         event.registerLayerDefinition(BPLayers.BACKPACK_BLOCK, BackpackModel::createBlockLayer);
-
-        event.registerLayerDefinition(BPLayers.OTHER_BACKPACK, OtherBackpackModel::createBodyLayer);
-        event.registerLayerDefinition(BPLayers.OTHER_BACKPACK_BLOCK, OtherBackpackModel::createBlockLayer);
     }
 
     private static void registerMenuScreens(RegisterMenuScreensEvent event) {
