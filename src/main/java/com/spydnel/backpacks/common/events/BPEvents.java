@@ -1,19 +1,26 @@
 package com.spydnel.backpacks.common.events;
 
-import com.spydnel.backpacks.Backpacks;
 import com.spydnel.backpacks.common.blocks.BackpackBlockEntity;
+import com.spydnel.backpacks.common.container.BackpackItemMenu;
+import com.spydnel.backpacks.common.container.BackpackMenu;
+import com.spydnel.backpacks.compat.CuriosUtils;
 import com.spydnel.backpacks.registry.BPBlocks;
 import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPSounds;
+import com.spydnel.backpacks.utils.BPUtils;
 import com.spydnel.backpacks.utils.BackpackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,21 +30,36 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import top.theillusivec4.curios.api.event.CurioCanEquipEvent;
 
 import java.util.Objects;
 
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.FACING;
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.WATERLOGGED;
 
-@EventBusSubscriber(modid = Backpacks.MOD_ID)
-public class BackpackPickupEvents {
+public class BPEvents {
 
-    @SubscribeEvent
+    public static void init() {
+        final IEventBus bus = NeoForge.EVENT_BUS;
+
+        bus.addListener(BPEvents::onRightClickBlock);
+        bus.addListener(BPEvents::onItemEntityPickup);
+        bus.addListener(BPEvents::onEntityInteract);
+        bus.addListener(BPEvents::onEquipmentChange);
+
+        if (BPUtils.isModLoaded("curios")) {
+            bus.addListener(BPEvents::onCurioEquip);
+        }
+    }
+
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockPos pos = event.getPos();
         Level level = event.getLevel();
@@ -103,8 +125,7 @@ public class BackpackPickupEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void  onItemEntityPickup(ItemEntityPickupEvent.Pre event) {
+    public static void onItemEntityPickup(ItemEntityPickupEvent.Pre event) {
         ItemEntity itemEntity = event.getItemEntity();
         ItemStack itemStack = itemEntity.getItem();
         boolean hasContainer = itemStack.has(DataComponents.CONTAINER);
@@ -122,6 +143,62 @@ public class BackpackPickupEvents {
                 player.awardStat(Stats.ITEM_PICKED_UP.get(itemStack.getItem()), 1);
                 player.onItemPickup(itemEntity);
             }
+        }
+    }
+
+    public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return;
+        if (event.getSlot() != EquipmentSlot.CHEST) return;
+
+        ItemStack newItem = event.getTo();
+        if (!newItem.is(BPItems.BACKPACK.get())) return;
+
+        if (BackpackUtils.curiosEnabled() && CuriosUtils.hasBackpack(player)) {
+            player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            ejectStack(player, newItem);
+        }
+    }
+
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        Player player = event.getEntity();
+        LivingEntity target = event.getTarget() instanceof LivingEntity ? (LivingEntity) event.getTarget() : null;
+        ItemStack item = target != null ? BackpackUtils.getEquippedBackpack(target) : null;
+
+        if (target != null && item.is(BPItems.BACKPACK) && isBehind(player, target)) {
+            BackpackItemMenu container = new BackpackItemMenu(target, player);
+            if (!item.has(DataComponents.CONTAINER)) {
+                item.set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+            }
+
+            item.get(DataComponents.CONTAINER).copyInto(container.getItems());
+
+            player.openMenu(new SimpleMenuProvider((a, b, c) -> new BackpackMenu(a, player.getInventory(), container), Component.translatable("container.backpack")));
+
+            event.setCancellationResult(InteractionResult.CONSUME);
+            event.setCanceled(true);
+        }
+    }
+
+    public static boolean isBehind(Player player, LivingEntity target) {
+        float t = 1.0F;
+        Vec3 vector = player.getPosition(t).subtract(target.getPosition(t)).normalize();
+        vector = new Vec3(vector.x, 0, vector.z);
+        return target.getViewVector(t).dot(vector) < 0;
+    }
+
+    public static void onCurioEquip(CurioCanEquipEvent event) {
+        if (!event.getStack().is(BPItems.BACKPACK.get())) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        if (player.getItemBySlot(EquipmentSlot.CHEST).is(BPItems.BACKPACK.get())) {
+            event.setEquipResult(TriState.FALSE);
+        }
+    }
+
+    private static void ejectStack(Player player, ItemStack stack) {
+        if (!player.addItem(stack)) {
+            player.drop(stack, true, false);
         }
     }
 

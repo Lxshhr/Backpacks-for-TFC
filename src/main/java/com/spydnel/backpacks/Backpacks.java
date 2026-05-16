@@ -3,6 +3,7 @@ package com.spydnel.backpacks;
 import com.mojang.logging.LogUtils;
 import com.spydnel.backpacks.client.BPClient;
 import com.spydnel.backpacks.client.BPClientEvents;
+import com.spydnel.backpacks.common.events.BPEvents;
 import com.spydnel.backpacks.config.BPCommonConfig;
 import com.spydnel.backpacks.config.BPServerConfig;
 import com.spydnel.backpacks.networking.BackpackOpenPayload;
@@ -48,6 +49,7 @@ public class Backpacks {
         }
 
         BPClientEvents.init();
+        BPEvents.init();
     }
 
     private void register(final RegisterPayloadHandlersEvent event) {
