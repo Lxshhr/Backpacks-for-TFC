@@ -4,6 +4,7 @@ import com.spydnel.backpacks.common.container.BackpackMenu;
 import com.spydnel.backpacks.config.BPServerConfig;
 import com.spydnel.backpacks.registry.BPBlockEntities;
 import com.spydnel.backpacks.registry.BPSounds;
+import com.spydnel.backpacks.registry.BPTags;
 import net.dries007.tfc.common.component.size.ItemSizeManager;
 import net.dries007.tfc.common.container.ISlotCallback;
 import net.dries007.tfc.common.container.PestContainer;
@@ -47,7 +48,7 @@ public class BackpackBlockEntity extends RandomizableContainerBlockEntity implem
     }
 
     public static boolean isValid(ItemStack stack) {
-        return ItemSizeManager.get(stack).getSize(stack).isEqualOrSmallerThan(BPServerConfig.backpackMaximumItemSize.get());
+        return ItemSizeManager.get(stack).getSize(stack).isEqualOrSmallerThan(BPServerConfig.backpackMaximumItemSize.get()) && !stack.is(BPTags.Items.BACKPACK_BLACKLIST);
     }
 
     @Override
