@@ -3,6 +3,7 @@
   "package": "com.spydnel.backpacks.mixins",
   "plugin": "com.moulberry.mixinconstraints.ConstraintsMixinPlugin",
   "mixins": [
+    "HopperMixin",
     "ItemEntityMixin",
     "LivingEntityMixin"
   ],
