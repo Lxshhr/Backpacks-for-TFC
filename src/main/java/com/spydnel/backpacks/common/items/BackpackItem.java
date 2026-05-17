@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-public class BackpackItem extends BlockItem implements Equipable, IItemSize {
+public class BackpackItem extends BlockItem implements Equipable {
     public BackpackItem(Block block, Properties properties) {
         super(block, properties);
     }
@@ -58,13 +58,4 @@ public class BackpackItem extends BlockItem implements Equipable, IItemSize {
         return InteractionResultHolder.pass(heldItem);
     }
 
-    @Override
-    public Size getSize(ItemStack itemStack) {
-        return Size.HUGE;
-    }
-
-    @Override
-    public Weight getWeight(ItemStack itemStack) {
-        return itemStack.has(DataComponents.CONTAINER) ? Weight.VERY_HEAVY : Weight.HEAVY;
-    }
 }

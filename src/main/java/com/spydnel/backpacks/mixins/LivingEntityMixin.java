@@ -21,7 +21,10 @@ public abstract class LivingEntityMixin extends Entity implements BackpackWearer
         super(entityType, level);
     }
 
-    @Inject(method = "baseTick", at = @At("HEAD"))
+    @Inject(
+            method = "baseTick",
+            at = @At("HEAD")
+    )
     public void backpacks$baseTick(CallbackInfo ci) {
         if (getData(OPEN_COUNT) > 0 && getData(OPEN_TICKS) < 10) {
             setData(OPEN_TICKS, getData(OPEN_TICKS) + 1);

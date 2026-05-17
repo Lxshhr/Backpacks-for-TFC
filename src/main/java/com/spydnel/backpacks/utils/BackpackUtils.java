@@ -3,10 +3,15 @@ package com.spydnel.backpacks.utils;
 import com.spydnel.backpacks.compat.CuriosUtils;
 import com.spydnel.backpacks.config.BPCommonConfig;
 import com.spydnel.backpacks.registry.BPItems;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
+
+import java.util.Objects;
 
 public class BackpackUtils {
 
@@ -28,6 +33,7 @@ public class BackpackUtils {
     }
 
     public static boolean equipBackpack(Player player, ItemStack itemStack) {
+        if (!canEquipBackpack(player)) return false;
         if (curiosEnabled() && CuriosUtils.equipBackpack(player, itemStack)) {
             return true;
         }
@@ -63,5 +69,33 @@ public class BackpackUtils {
             return !CuriosUtils.hasBackpack(player) && !player.getItemBySlot(EquipmentSlot.CHEST).is(BPItems.BACKPACK.get());
         }
         return player.getItemBySlot(EquipmentSlot.CHEST).isEmpty();
+    }
+
+    public static boolean isNonEmptyBackpack(ItemStack stack) {
+        if (!stack.is(BPItems.BACKPACK)) return true;
+        if (!stack.has(DataComponents.CONTAINER)) return true;
+        return !Objects.equals(stack.get(DataComponents.CONTAINER), ItemContainerContents.EMPTY);
+    }
+
+    public static int getCarryCount(Player player) {
+        Container container = player.getInventory();
+        int count = 0;
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            final ItemStack stack = container.getItem(i);
+            if (!stack.isEmpty() && stack.is(BPItems.BACKPACK)) {
+                if (BackpackUtils.isNonEmptyBackpack(stack)) {
+                    count++;
+                    if (count == 2) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (BackpackUtils.curiosEnabled()) {
+            ItemStack stack = CuriosUtils.getEquippedBackpack(player);
+            if (BackpackUtils.isNonEmptyBackpack(stack)) count++;
+        }
+        return count;
     }
 }

@@ -9,6 +9,7 @@ import com.spydnel.backpacks.registry.BPItems;
 import com.spydnel.backpacks.registry.BPSounds;
 import com.spydnel.backpacks.utils.BPUtils;
 import com.spydnel.backpacks.utils.BackpackUtils;
+import net.dries007.tfc.util.Helpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -32,15 +33,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import top.theillusivec4.curios.api.event.CurioCanEquipEvent;
-
-import java.util.Objects;
 
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.FACING;
 import static com.spydnel.backpacks.common.blocks.BackpackBlock.WATERLOGGED;
@@ -54,6 +55,8 @@ public class BPEvents {
         bus.addListener(BPEvents::onItemEntityPickup);
         bus.addListener(BPEvents::onEntityInteract);
         bus.addListener(BPEvents::onEquipmentChange);
+
+        bus.addListener(EventPriority.LOWEST, BPEvents::onPlayerTick);
 
         if (BPUtils.isModLoaded("curios")) {
             bus.addListener(BPEvents::onCurioEquip);
@@ -128,10 +131,8 @@ public class BPEvents {
     public static void onItemEntityPickup(ItemEntityPickupEvent.Pre event) {
         ItemEntity itemEntity = event.getItemEntity();
         ItemStack itemStack = itemEntity.getItem();
-        boolean hasContainer = itemStack.has(DataComponents.CONTAINER);
-        boolean isEmpty = Objects.equals(itemStack.get(DataComponents.CONTAINER), ItemContainerContents.EMPTY);
 
-        if (itemStack.is(BPItems.BACKPACK) && hasContainer && !isEmpty) {
+        if (itemStack.is(BPItems.BACKPACK) && BackpackUtils.isNonEmptyBackpack(itemStack)) {
             Player player = event.getPlayer();
             if (BackpackUtils.canEquipBackpack(player) && !itemEntity.hasPickUpDelay()) {
                 ItemStack backpack = itemStack.copy();
@@ -143,6 +144,18 @@ public class BPEvents {
                 player.awardStat(Stats.ITEM_PICKED_UP.get(itemStack.getItem()), 1);
                 player.onItemPickup(itemEntity);
             }
+            event.setCanPickup(TriState.FALSE);
+        }
+    }
+
+    public static void onPlayerTick(PlayerTickEvent.Pre event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide()) return;
+        if (player.getAbilities().invulnerable) return;
+        if (player.level().getGameTime() % 20 != 0) return;
+
+        if (BackpackUtils.getCarryCount(player) >= 2) {
+            player.addEffect(Helpers.getOverburdened(false));
         }
     }
 
@@ -151,12 +164,12 @@ public class BPEvents {
         if (player.level().isClientSide()) return;
         if (event.getSlot() != EquipmentSlot.CHEST) return;
 
-        ItemStack newItem = event.getTo();
-        if (!newItem.is(BPItems.BACKPACK.get())) return;
+        ItemStack stack = event.getTo();
+        if (!stack.is(BPItems.BACKPACK.get())) return;
 
         if (BackpackUtils.curiosEnabled() && CuriosUtils.hasBackpack(player)) {
             player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
-            ejectStack(player, newItem);
+            player.drop(stack, true, false);
         }
     }
 
@@ -191,14 +204,8 @@ public class BPEvents {
         if (!event.getStack().is(BPItems.BACKPACK.get())) return;
         if (!(event.getEntity() instanceof Player player)) return;
 
-        if (player.getItemBySlot(EquipmentSlot.CHEST).is(BPItems.BACKPACK.get())) {
+        if (player.getItemBySlot(EquipmentSlot.CHEST).is(BPItems.BACKPACK.get()) || CuriosUtils.hasBackpack(player)) {
             event.setEquipResult(TriState.FALSE);
-        }
-    }
-
-    private static void ejectStack(Player player, ItemStack stack) {
-        if (!player.addItem(stack)) {
-            player.drop(stack, true, false);
         }
     }
 
